@@ -29,7 +29,7 @@ def create_vector_store(chunks):
     index.add(np.array(embeddings).astype('float32'))
     return index, chunks
 
-def search_relevant_chunks(query, index, chunks, k=4):
+def search_relevant_chunks(query, index, chunks, k=6):
     query_vec = embedding_model.encode([query], normalize_embeddings=True)
     distances, indices = index.search(np.array(query_vec).astype('float32'), k)
     return [chunks[i] for i in indices[0] if i < len(chunks)]
@@ -63,7 +63,7 @@ def clean_output(text):
         if len(line) > 5:
             bullets.append(f"• {line}")
 
-    return "\n".join(bullets[:5])
+    return "\n".join(bullets[:10])
 
 def generate_answer(query, context):
     context = context[:2500]
@@ -75,7 +75,8 @@ Rules:
 - Use ONLY the given context
 - Do NOT guess
 - If not found → say "Not found in document"
-- Answer in bullet points only (max 5)
+- Answer in exactly 8 to 10 bullet points
+- Each point must be a complete, informative sentence
 - No long paragraphs
 """
 
