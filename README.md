@@ -1,62 +1,51 @@
-# DocuQuery: Local Document Q&A System
+# DocuQuery
 
-DocuQuery is a privacy-first, local RAG (Retrieval-Augmented Generation) system that allows users to upload PDF documents and ask questions about their content. The system ensures that all processing happens locally, with no data leaving your machine.
+A local RAG system for asking questions about PDF documents. Everything runs on your machine — no API keys, no cloud, no data leaving your computer.
 
-## 🚀 Features
-- **PDF Upload**: Easily upload any PDF document.
-- **Local LLM**: Powered by **Ollama** (llama3) for high-quality responses.
-- **Vector Search**: Uses **FAISS** and **Sentence Transformers** for efficient document retrieval.
-- **Privacy First**: No external APIs or internet connection required (once models are downloaded).
-- **Premium UI**: Modern, glassmorphic design for a superior user experience.
+Built this because I wanted to be able to query my own documents without feeding them to some third-party service.
 
-## 🛠️ Tech Stack
-- **Backend**: Django
-- **LLM Engine**: Ollama (llama3)
-- **Vector DB**: FAISS
-- **Embeddings**: Sentence Transformers (`all-MiniLM-L6-v2`)
-- **PDF Processing**: PyMuPDF (fitz)
+## What it does
 
-## 📋 Prerequisites
-1. **Python 3.9+**
-2. **Ollama**: [Download and Install Ollama](https://ollama.com/)
-3. **Llama3 Model**: Run the following command in your terminal:
-   ```bash
-   ollama run llama3
-   ```
+Upload a PDF, ask questions about it, get answers. That's it.
 
-## ⚙️ Setup Instructions
+Under the hood it extracts text from your PDF, splits it into chunks, embeds them with Sentence Transformers, stores the vectors in FAISS, and when you ask something it pulls the relevant chunks and feeds them to a local Llama3 model via Ollama.
 
-1. **Clone the repository**:
-   ```bash
-   git clone <repository-url>
-   cd docqa
-   ```
+## Stack
 
-2. **Install dependencies**:
-   ```bash
-   pip install django faiss-cpu sentence-transformers pymupdf ollama
-   ```
+- Django (backend)
+- Ollama + llama3 (local LLM)
+- FAISS (vector search)
+- Sentence Transformers — `all-MiniLM-L6-v2` (embeddings)
+- PyMuPDF (PDF text extraction)
 
-3. **Run Migrations**:
-   ```bash
-   python manage.py makemigrations
-   python manage.py migrate
-   ```
+## Prerequisites
 
-4. **Start the server**:
-   ```bash
-   python manage.py runserver
-   ```
+- Python 3.9+
+- [Ollama](https://ollama.com/) installed and running
 
-5. **Open the app**:
-   Visit `http://127.0.0.1:8000` in your browser.
+Pull the model before you start:
+```bash
+ollama run llama3
+```
 
-## 🧠 How it Works
-1. **Extraction**: The system uses PyMuPDF to extract text from the uploaded PDF.
-2. **Chunking**: Text is split into manageable chunks with overlapping context.
-3. **Embedding**: Each chunk is converted into a vector embedding using Sentence Transformers.
-4. **Retrieval**: When a question is asked, the system finds the most relevant chunks using FAISS similarity search.
-5. **Generation**: The relevant context + the question are sent to the local Llama3 model via Ollama to generate a precise answer.
+## Setup
 
-## 📝 Note
-Ensure Ollama is running in the background before asking questions. The first time you run it, it might take a few seconds to load the embedding model and the LLM.
+```bash
+git clone <repository-url>
+cd docqa
+
+pip install django faiss-cpu sentence-transformers pymupdf ollama
+
+python manage.py makemigrations
+python manage.py migrate
+
+python manage.py runserver
+```
+
+Then open `http://127.0.0.1:8000`.
+
+## A couple of things to know
+
+Make sure Ollama is running in the background before you try to ask anything. First run is a bit slow — the embedding model and LLM both need a moment to load.
+
+If you're running this for the first time, the `ollama run llama3` step will download the model which is a few GBs, so give it some time.
